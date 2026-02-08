@@ -1,0 +1,45 @@
+{
+  "name": "@dubaicrab/shared-types",
+  "version": "0.1.0",
+  "description": "Dubai Crab 공유 타입 정의",
+  "keywords": [
+    "dubaicrab",
+    "types",
+    "typescript"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./chat": {
+      "types": "./dist/chat.d.ts",
+      "import": "./dist/chat.js"
+    },
+    "./gateway": {
+      "types": "./dist/gateway.d.ts",
+      "import": "./dist/gateway.js"
+    },
+    "./file": {
+      "types": "./dist/file.d.ts",
+      "import": "./dist/file.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {}
+}

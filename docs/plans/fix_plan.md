@@ -64,56 +64,58 @@
 
 ## P1-A: 필수 작업 (Must Have)
 
-### P1-A1: 에러 핸들링 표준화 [1일]
+### P1-A1: 에러 핸들링 표준화 [1일] ✅
 
-- [ ] `src/lib/utils/error.ts` 생성
+- [x] `src/lib/utils/error.ts` 생성
   ```typescript
   export class AppError extends Error { ... }
   export function formatError(error: unknown): string { ... }
   ```
-- [ ] `file-parser.ts` catch 블록 리팩토링
-- [ ] `gateway-client.ts` catch 블록 리팩토링
-- [ ] `stores/*.ts` catch 블록 리팩토링
-- [ ] `console.error` → `logger.error` 마이그레이션
+- [x] `file-parser.ts` catch 블록 리팩토링
+- [x] `gateway-client.ts` catch 블록 리팩토링
+- [x] `stores/*.ts` catch 블록 리팩토링
+- [x] `console.error` → `logger.error` 마이그레이션
+- [x] `src/lib/utils/logger.ts` 생성 (구조화된 로깅)
 
 ---
 
-### P1-A2: Dubai Crab 단위 테스트 [3일]
+### P1-A2: Dubai Crab 단위 테스트 [3일] ✅
 
-- [ ] `tests/lib/gateway-client.test.ts`
-  - [ ] connect() 성공/실패
-  - [ ] sendMessage() 연결 상태 체크
-  - [ ] reconnect() 백오프 로직
-  - [ ] 인증 토큰 전송
-- [ ] `tests/lib/file-parser.test.ts`
-  - [ ] parseTextFile() 성공/실패
-  - [ ] parseCsvFile() 성공/실패
-  - [ ] parseExcelFile() 성공/실패
-  - [ ] 지원하지 않는 확장자 처리
-- [ ] `tests/lib/stores/chat-store.test.ts`
-  - [ ] 메시지 추가
-  - [ ] 세션 전환
-  - [ ] localStorage 저장/로드
-- [ ] `tests/lib/stores/settings-store.test.ts`
-  - [ ] 설정 변경
-  - [ ] 기본값 복원
+- [x] `tests/lib/gateway-client.test.ts` (23 테스트)
+  - [x] connect() 성공/실패
+  - [x] sendMessage() 연결 상태 체크
+  - [x] reconnect() 백오프 로직
+  - [x] 인증 토큰 전송
+- [x] `tests/lib/file-parser.test.ts` (25 테스트)
+  - [x] parseTextFile() 성공/실패
+  - [x] parseCsvFile() 성공/실패
+  - [x] PDF/HWP/PPT 파서 테스트
+  - [x] 지원하지 않는 확장자 처리
+- [x] `tests/lib/chat-store.test.ts` (20 테스트)
+  - [x] 메시지 추가
+  - [x] 세션 전환
+  - [x] localStorage 저장/로드
+- [x] `tests/lib/settings-store.test.ts` (24 테스트)
+  - [x] 설정 변경
+  - [x] 기본값 복원
+  - [x] 커스텀 모델 관리
 
-**목표 커버리지**: 50%+
+**달성**: 132개 테스트 통과
 
 ---
 
-### P1-A3: 공유 타입 패키지 [2일]
+### P1-A3: 공유 타입 패키지 [2일] ✅
 
-- [ ] `packages/shared-types/` 디렉토리 생성
-- [ ] `package.json` 설정
-- [ ] 타입 파일 작성
-  - [ ] `src/chat.ts` (ChatMessage, ChatSession)
-  - [ ] `src/gateway.ts` (GatewayConfig, GatewayResponse)
-  - [ ] `src/file.ts` (ParseResult, SupportedExtension)
-  - [ ] `src/index.ts` (re-export)
-- [ ] dubaicrab-core에서 import
-- [ ] Dubai Crab에서 import
-- [ ] 기존 중복 타입 제거
+- [x] `packages/shared-types/` 디렉토리 생성
+- [x] `package.json` 설정 (@dubaicrab/shared-types)
+- [x] 타입 파일 작성
+  - [x] `src/chat.ts` (ChatMessage, ChatSession, StreamChunk 등)
+  - [x] `src/gateway.ts` (GatewayConfig, GatewayResponse, OllamaStatus 등)
+  - [x] `src/file.ts` (ParseResult, FileMetadata, ParseProgress 등)
+  - [x] `src/index.ts` (re-export)
+- [ ] dubaicrab-core에서 import (추후)
+- [ ] Dubai Crab에서 import (추후)
+- [ ] 기존 중복 타입 제거 (추후)
 
 ---
 
