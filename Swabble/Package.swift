@@ -4,8 +4,8 @@ import PackageDescription
 let package = Package(
     name: "swabble",
     platforms: [
-        .macOS(.v15),
-        .iOS(.v17),
+        .macOS(.v26),
+        .iOS(.v26),
     ],
     products: [
         .library(name: "Swabble", targets: ["Swabble"]),
