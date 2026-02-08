@@ -9,9 +9,9 @@
     "openai": "^6.18.0"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "dubaicrab-core": "workspace:*"
   },
-  "openclaw": {
+  "dubaicrab-core": {
     "extensions": [
       "./index.ts"
     ]

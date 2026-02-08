@@ -4,9 +4,9 @@
   "description": "OpenClaw JSON-only LLM task plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "dubaicrab-core": "workspace:*"
   },
-  "openclaw": {
+  "dubaicrab-core": {
     "extensions": [
       "./index.ts"
     ]

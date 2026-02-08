@@ -4,9 +4,9 @@
   "description": "OpenClaw Telegram channel plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "dubaicrab-core": "workspace:*"
   },
-  "openclaw": {
+  "dubaicrab-core": {
     "extensions": [
       "./index.ts"
     ]
