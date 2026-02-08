@@ -23,7 +23,7 @@ dubaicrab-core/          # 백엔드 (OpenClaw 포크)
 │   └── email-writing/
 └── dist/                # 빌드 결과
 
-OpenKlaw/                # Tauri UI (데스크톱 앱)
+Dubai Crab/                # Tauri UI (데스크톱 앱)
 ├── src/
 │   ├── lib/             # Svelte 컴포넌트
 │   └── routes/          # SvelteKit 라우트

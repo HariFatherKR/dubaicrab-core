@@ -5,7 +5,7 @@
 **대상 프로젝트**:
 
 - dubaicrab-core (백엔드)
-- OpenKlaw (Tauri UI)
+- Dubai Crab (Tauri UI)
 - dubaicrab-web (웹사이트)
 
 ---
@@ -19,7 +19,7 @@
 - **파일 구조**: 1,656개 TypeScript 파일, 946개 테스트 파일
 - **테스트 커버리지**: ~36% (테스트 파일 수 기준)
 
-### OpenKlaw (Tauri UI)
+### Dubai Crab (Tauri UI)
 
 - **기술 스택**: Tauri 2.0, Svelte 5, Rust, TypeScript
 - **주요 특징**: 데스크톱 앱, HWP 파싱, Ollama 연동
@@ -58,7 +58,7 @@ export function formatUncaughtError(err: unknown): string {
 }
 ```
 
-#### OpenKlaw
+#### Dubai Crab
 
 - **클린 아키텍처**: `lib/` 하위에 stores, skills, tools 분리
 - **타입 정의**: 인터페이스 명확하게 정의
@@ -94,7 +94,7 @@ export interface ChatMessage {
 **문제점**: 일부 함수에서 `any` 타입 에러 사용, catch 블록에서 빈 처리
 
 ```typescript
-// 개선 필요 (OpenKlaw - file-parser.ts)
+// 개선 필요 (Dubai Crab - file-parser.ts)
 } catch (error) {
   return {
     success: false,
@@ -113,7 +113,7 @@ export interface ChatMessage {
 ```
 
 **영향도**: 중간  
-**위치**: `OpenKlaw/src/lib/file-parser.ts`, 다수
+**위치**: `Dubai Crab/src/lib/file-parser.ts`, 다수
 
 ---
 
@@ -151,7 +151,7 @@ export async function parseFile(file: File): Promise<ParseResult> {
 ```
 
 **영향도**: 중간  
-**위치**: `OpenKlaw/src/lib/file-parser.ts`
+**위치**: `Dubai Crab/src/lib/file-parser.ts`
 
 ---
 
@@ -175,22 +175,22 @@ export const GATEWAY_CONFIG = {
 ```
 
 **영향도**: 낮음  
-**위치**: `OpenKlaw/src/lib/gateway-client.ts`, `src/lib/stores/`
+**위치**: `Dubai Crab/src/lib/gateway-client.ts`, `src/lib/stores/`
 
 ---
 
 #### 4. 테스트 커버리지 불균형
 
-**문제점**: core는 테스트 풍부, OpenKlaw/Web은 테스트 부족
+**문제점**: core는 테스트 풍부, Dubai Crab/Web은 테스트 부족
 
 | 프로젝트       | 테스트 파일 | 소스 파일 | 비율 |
 | -------------- | ----------- | --------- | ---- |
 | dubaicrab-core | 946         | 1,656     | ~57% |
-| OpenKlaw       | 4           | 31        | ~13% |
+| Dubai Crab     | 4           | 31        | ~13% |
 | dubaicrab-web  | 0           | 2         | 0%   |
 
 **영향도**: 높음  
-**권장**: OpenKlaw에 단위 테스트 추가, Web에 E2E 테스트 도입
+**권장**: Dubai Crab에 단위 테스트 추가, Web에 E2E 테스트 도입
 
 ---
 
@@ -206,7 +206,7 @@ export interface ChatMessage {
   // ...
 }
 
-// OpenKlaw (동일한 정의 반복)
+// Dubai Crab (동일한 정의 반복)
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
@@ -223,7 +223,7 @@ export interface ChatMessage {
 **문제점**: console.log/error 직접 사용, 구조화된 로깅 부재
 
 ```typescript
-// 현재 (OpenKlaw)
+// 현재 (Dubai Crab)
 console.log("[게이트웨이] 연결됨");
 console.error("[Gateway] Parse error:", e);
 
@@ -306,7 +306,7 @@ async function* parseExcelChunks(file: File, chunkSize = 1000) {
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │ dubaicrab-web│    │  OpenKlaw    │    │dubaicrab-core│  │
+│  │ dubaicrab-web│    │  Dubai Crab    │    │dubaicrab-core│  │
 │  │ (Next.js)    │    │ (Tauri+Svelte)│    │ (Node.js)   │  │
 │  │              │    │              │    │              │  │
 │  │ 랜딩 페이지   │    │ 데스크톱 앱   │    │ AI 게이트웨이 │  │
@@ -339,27 +339,27 @@ async function* parseExcelChunks(file: File, chunkSize = 1000) {
 
 ## 4. SOLID 원칙 적용도
 
-| 원칙                  | Core | OpenKlaw | Web | 비고                     |
-| --------------------- | :--: | :------: | :-: | ------------------------ |
-| Single Responsibility |  ✅  |    ⚠️    | ✅  | file-parser.ts 개선 필요 |
-| Open/Closed           |  ✅  |    ✅    | ✅  | 플러그인 아키텍처 양호   |
-| Liskov Substitution   |  ✅  |    ✅    | ✅  | 인터페이스 준수          |
-| Interface Segregation |  ✅  |    ⚠️    | ✅  | 일부 과도한 인터페이스   |
-| Dependency Inversion  |  ✅  |    ⚠️    | ✅  | 하드코딩된 의존성        |
+| 원칙                  | Core | Dubai Crab | Web | 비고                     |
+| --------------------- | :--: | :--------: | :-: | ------------------------ |
+| Single Responsibility |  ✅  |     ⚠️     | ✅  | file-parser.ts 개선 필요 |
+| Open/Closed           |  ✅  |     ✅     | ✅  | 플러그인 아키텍처 양호   |
+| Liskov Substitution   |  ✅  |     ✅     | ✅  | 인터페이스 준수          |
+| Interface Segregation |  ✅  |     ⚠️     | ✅  | 일부 과도한 인터페이스   |
+| Dependency Inversion  |  ✅  |     ⚠️     | ✅  | 하드코딩된 의존성        |
 
 ---
 
 ## 5. 종합 점수
 
-| 카테고리   |  Core   | OpenKlaw |   Web   |    전체    |
-| ---------- | :-----: | :------: | :-----: | :--------: |
-| 코드 품질  |  9/10   |   7/10   |  8/10   |  **8/10**  |
-| 아키텍처   |  9/10   |   8/10   |  7/10   |  **8/10**  |
-| 테스트     |  8/10   |   4/10   |  2/10   |  **5/10**  |
-| 보안       |  8/10   |   6/10   |  7/10   |  **7/10**  |
-| 성능       |  8/10   |   7/10   |  8/10   | **7.5/10** |
-| 유지보수성 |  8/10   |   7/10   |  8/10   | **7.5/10** |
-| **종합**   | **8.3** | **6.5**  | **6.7** | **7.2/10** |
+| 카테고리   |  Core   | Dubai Crab |   Web   |    전체    |
+| ---------- | :-----: | :--------: | :-----: | :--------: |
+| 코드 품질  |  9/10   |    7/10    |  8/10   |  **8/10**  |
+| 아키텍처   |  9/10   |    8/10    |  7/10   |  **8/10**  |
+| 테스트     |  8/10   |    4/10    |  2/10   |  **5/10**  |
+| 보안       |  8/10   |    6/10    |  7/10   |  **7/10**  |
+| 성능       |  8/10   |    7/10    |  8/10   | **7.5/10** |
+| 유지보수성 |  8/10   |    7/10    |  8/10   | **7.5/10** |
+| **종합**   | **8.3** |  **6.5**   | **6.7** | **7.2/10** |
 
 ---
 
@@ -367,7 +367,7 @@ async function* parseExcelChunks(file: File, chunkSize = 1000) {
 
 ### 즉시 조치 (P0)
 
-1. OpenKlaw 테스트 커버리지 확대
+1. Dubai Crab 테스트 커버리지 확대
 2. 에러 핸들링 표준화
 3. 공유 타입 패키지 생성
 

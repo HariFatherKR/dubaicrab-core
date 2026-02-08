@@ -39,12 +39,12 @@
 
 #### 목표
 
-- OpenKlaw 테스트 커버리지: 13% → 50%
+- Dubai Crab 테스트 커버리지: 13% → 50%
 - dubaicrab-web 테스트 추가: 0% → 기본 E2E
 
 #### 태스크
 
-**OpenKlaw 단위 테스트 추가**
+**Dubai Crab 단위 테스트 추가**
 
 ```bash
 # 테스트 구조
@@ -186,7 +186,7 @@ test.describe("랜딩 페이지", () => {
 **공통 에러 유틸리티 생성**
 
 ```typescript
-// src/lib/utils/error.ts (OpenKlaw)
+// src/lib/utils/error.ts (Dubai Crab)
 export class AppError extends Error {
   constructor(
     message: string,
@@ -595,7 +595,7 @@ export function validateFile(file: File): ValidationResult {
 dubai-crab/
 ├── apps/
 │   ├── core/          # dubaicrab-core (기존)
-│   ├── desktop/       # OpenKlaw (기존)
+│   ├── desktop/       # Dubai Crab (기존)
 │   └── web/           # dubaicrab-web (기존)
 ├── packages/
 │   ├── shared-types/  # 공통 타입
@@ -742,9 +742,9 @@ export default {
 ### Phase 1 (P0) - 1주
 
 - [ ] 에러 유틸리티 (`src/lib/utils/error.ts`) 생성
-- [ ] 기존 catch 블록 리팩토링 (OpenKlaw)
+- [ ] 기존 catch 블록 리팩토링 (Dubai Crab)
 - [ ] `@dubaicrab/shared-types` 패키지 생성
-- [ ] OpenKlaw 테스트 추가
+- [ ] Dubai Crab 테스트 추가
   - [ ] gateway-client.test.ts
   - [ ] file-parser.test.ts (확장)
   - [ ] chat-store.test.ts

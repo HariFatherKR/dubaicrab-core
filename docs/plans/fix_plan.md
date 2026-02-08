@@ -45,10 +45,10 @@
 
 ### P0-E2E: E2E 테스트 작성
 
-- [x] Playwright 설정 (OpenKlaw)
+- [x] Playwright 설정 (Dubai Crab)
   - [x] `playwright.config.ts` 생성
   - [x] Tauri 테스트 환경 설정 (웹 모드)
-- [x] OpenKlaw E2E 케이스
+- [x] Dubai Crab E2E 케이스
   - [x] 앱 시작 → 환영 메시지 확인
   - [x] 기본 채팅 UI 존재 확인
   - [x] 접근성 테스트 (aria-label, 키보드)
@@ -78,7 +78,7 @@
 
 ---
 
-### P1-A2: OpenKlaw 단위 테스트 [3일]
+### P1-A2: Dubai Crab 단위 테스트 [3일]
 
 - [ ] `tests/lib/gateway-client.test.ts`
   - [ ] connect() 성공/실패
@@ -112,7 +112,7 @@
   - [ ] `src/file.ts` (ParseResult, SupportedExtension)
   - [ ] `src/index.ts` (re-export)
 - [ ] dubaicrab-core에서 import
-- [ ] OpenKlaw에서 import
+- [ ] Dubai Crab에서 import
 - [ ] 기존 중복 타입 제거
 
 ---
@@ -288,7 +288,7 @@ Week 3-4 (Sprint P1-2): 인스톨러 + 개선
 
 - [ ] P0 100% 완료
 - [ ] 코드 품질 8.0/10
-- [ ] OpenKlaw 테스트 50%+
+- [ ] Dubai Crab 테스트 50%+
 - [ ] Windows/macOS 인스톨러 완성
 - [ ] 비개발자 10분 내 설치 가능
 
