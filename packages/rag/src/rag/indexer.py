@@ -6,6 +6,7 @@
 
 import hashlib
 import logging
+import os
 from pathlib import Path
 from typing import Callable, List, Optional, Set
 
@@ -20,6 +21,80 @@ logger = logging.getLogger(__name__)
 
 # 지원 파일 확장자
 SUPPORTED_EXTENSIONS = {".hwp", ".hwpx", ".txt"}
+
+# 최대 파일 크기 (100MB)
+MAX_FILE_SIZE = 100 * 1024 * 1024
+
+
+def validate_file_path(
+    file_path: Path,
+    base_dir: Optional[Path] = None,
+) -> Path:
+    """
+    파일 경로 보안 검증
+    
+    Args:
+        file_path: 검증할 파일 경로
+        base_dir: 허용할 기본 디렉토리 (None이면 제한 없음)
+    
+    Returns:
+        Path: 정규화된 안전한 경로
+    
+    Raises:
+        ValueError: 허용되지 않은 경로
+        FileNotFoundError: 파일이 존재하지 않음
+    """
+    # 절대 경로로 정규화 (심볼릭 링크 해제, .. 처리)
+    resolved = Path(os.path.realpath(file_path))
+    
+    # 파일 존재 확인
+    if not resolved.exists():
+        raise FileNotFoundError(f"파일을 찾을 수 없습니다: {resolved}")
+    
+    # 경로 순회 공격 방지: base_dir이 지정된 경우 해당 디렉토리 내 파일만 허용
+    if base_dir is not None:
+        base_resolved = Path(os.path.realpath(base_dir))
+        try:
+            resolved.relative_to(base_resolved)
+        except ValueError:
+            raise ValueError(
+                f"경로 순회 공격 감지: {file_path} 는 "
+                f"허용된 디렉토리({base_resolved}) 외부입니다"
+            )
+    
+    # 확장자 검증
+    if resolved.suffix.lower() not in SUPPORTED_EXTENSIONS:
+        raise ValueError(f"지원하지 않는 파일 형식: {resolved.suffix}")
+    
+    # 파일 크기 검증
+    if resolved.stat().st_size > MAX_FILE_SIZE:
+        raise ValueError(
+            f"파일 크기 초과: {resolved.stat().st_size} > {MAX_FILE_SIZE} bytes"
+        )
+    
+    return resolved
+
+
+def validate_directory_path(dir_path: Path) -> Path:
+    """
+    디렉토리 경로 보안 검증
+    
+    Args:
+        dir_path: 검증할 디렉토리 경로
+    
+    Returns:
+        Path: 정규화된 안전한 경로
+    
+    Raises:
+        ValueError: 디렉토리가 아닌 경우
+    """
+    # 절대 경로로 정규화
+    resolved = Path(os.path.realpath(dir_path))
+    
+    if not resolved.is_dir():
+        raise ValueError(f"디렉토리가 아닙니다: {resolved}")
+    
+    return resolved
 
 
 def get_document_hash(file_path: Path) -> str:
@@ -81,6 +156,7 @@ def index_document(
     collection_name: str = DEFAULT_COLLECTION_NAME,
     chunk_size: int = 512,
     overlap: int = 50,
+    base_dir: Optional[Path] = None,
     progress_callback: Optional[Callable[[str, int, int], None]] = None,
 ) -> dict:
     """
@@ -91,6 +167,7 @@ def index_document(
         collection_name: Chroma 컬렉션 이름
         chunk_size: 청크 크기
         overlap: 오버랩 크기
+        base_dir: 허용할 기본 디렉토리 (보안용, None이면 제한 없음)
         progress_callback: 진행률 콜백 (message, current, total)
     
     Returns:
@@ -102,13 +179,19 @@ def index_document(
     """
     file_path = Path(file_path)
     
-    if not file_path.exists():
+    # 경로 보안 검증
+    try:
+        file_path = validate_file_path(file_path, base_dir)
+    except (ValueError, FileNotFoundError) as e:
+        logger.warning(f"파일 경로 검증 실패: {file_path} - {e}")
         return {
             "success": False,
-            "file": file_path.name,
+            "file": str(file_path),
             "chunks_indexed": 0,
-            "error": f"파일을 찾을 수 없습니다: {file_path}",
+            "error": str(e),
         }
+    
+    logger.info(f"인덱싱 시작: {file_path.name}")
     
     # 1. 문서 파싱
     if progress_callback:
@@ -188,8 +271,12 @@ def index_document(
             existing = collection.get(where={"doc_hash": doc_hash})
             if existing and existing["ids"]:
                 collection.delete(ids=existing["ids"])
-        except Exception:
-            pass  # 기존 문서가 없으면 무시
+                logger.debug(f"기존 문서 삭제: {len(existing['ids'])}개 청크")
+        except ValueError:
+            # 문서가 없는 경우 - 정상
+            pass
+        except Exception as e:
+            logger.warning(f"기존 문서 삭제 실패 (계속 진행): {e}")
         
         # 새 청크 추가
         collection.add(
@@ -242,16 +329,17 @@ def index_directory(
     Returns:
         dict: 인덱싱 결과 요약
     """
-    dir_path = Path(dir_path)
-    
-    if not dir_path.is_dir():
+    # 디렉토리 경로 검증
+    try:
+        dir_path = validate_directory_path(Path(dir_path))
+    except ValueError as e:
         return {
             "success": False,
             "total_files": 0,
             "indexed_files": 0,
             "failed_files": 0,
             "total_chunks": 0,
-            "errors": [f"디렉토리가 아닙니다: {dir_path}"],
+            "errors": [str(e)],
         }
     
     # 대상 파일 수집
@@ -283,6 +371,7 @@ def index_directory(
                 collection_name=collection_name,
                 chunk_size=chunk_size,
                 overlap=overlap,
+                base_dir=dir_path,  # 경로 순회 공격 방지
             )
             
             if result["success"]:

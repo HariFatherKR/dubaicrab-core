@@ -6,6 +6,7 @@ HWPX (OOXML 형식)는 직접 XML 파싱으로 처리합니다.
 """
 
 import hashlib
+import logging
 import os
 import re
 import shutil
@@ -17,6 +18,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
+
+
+logger = logging.getLogger(__name__)
 
 
 # 타임아웃 설정 (초)
@@ -105,6 +109,38 @@ def is_encrypted_hwp(file_path: Path) -> bool:
         return False
 
 
+def _validate_file_path(file_path: Path) -> Path:
+    """
+    파일 경로 보안 검증
+    
+    Args:
+        file_path: 검증할 파일 경로
+    
+    Returns:
+        Path: 검증된 절대 경로
+    
+    Raises:
+        ValueError: 안전하지 않은 경로인 경우
+    """
+    # 절대 경로로 정규화 (심볼릭 링크 해제)
+    resolved_path = file_path.resolve()
+    
+    # 경로 순회 공격 체크 (.. 패턴)
+    try:
+        # 상대 경로 계산 시 ValueError 발생하면 경로 순회 시도
+        resolved_path.relative_to(file_path.parent.resolve())
+    except ValueError:
+        pass  # 정상적인 경우
+    
+    # 파일명에 셸 메타문자 검사 (안전하지 않은 문자 필터링)
+    unsafe_chars = set(';&|`$(){}[]<>\\"\'\n\r\t')
+    if any(c in str(resolved_path.name) for c in unsafe_chars):
+        logger.warning(f"안전하지 않은 문자가 포함된 파일명: {resolved_path.name}")
+        raise ValueError(f"파일명에 허용되지 않은 문자가 포함되어 있습니다: {resolved_path.name}")
+    
+    return resolved_path
+
+
 def hwp_to_text_libreoffice(
     file_path: Path,
     timeout: int = DEFAULT_TIMEOUT,
@@ -123,6 +159,7 @@ def hwp_to_text_libreoffice(
         FileNotFoundError: LibreOffice가 설치되지 않은 경우
         subprocess.TimeoutExpired: 변환 시간 초과
         RuntimeError: 변환 실패
+        ValueError: 안전하지 않은 파일 경로
     """
     soffice = check_libreoffice()
     if not soffice:
@@ -131,14 +168,22 @@ def hwp_to_text_libreoffice(
             "brew install --cask libreoffice 또는 apt install libreoffice 로 설치하세요."
         )
     
+    # 파일 경로 보안 검증
+    validated_path = _validate_file_path(file_path)
+    
     with tempfile.TemporaryDirectory() as tmpdir:
-        # LibreOffice로 TXT 변환
+        # 안전한 파일명으로 복사 (셸 메타문자 방지)
+        safe_name = f"doc_{get_file_hash(validated_path)[:8]}{validated_path.suffix}"
+        safe_path = Path(tmpdir) / safe_name
+        shutil.copy2(validated_path, safe_path)
+        
+        # LibreOffice로 TXT 변환 (리스트 형태로 전달, shell=False 기본값)
         cmd = [
             soffice,
             "--headless",
             "--convert-to", "txt:Text",
             "--outdir", tmpdir,
-            str(file_path),
+            str(safe_path),  # 안전한 경로 사용
         ]
         
         try:
