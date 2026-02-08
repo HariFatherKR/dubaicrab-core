@@ -59,14 +59,6 @@ class DocumentChunker:
     # 조항 패턴 (제1조, 제2조, ...)
     ARTICLE_PATTERN = re.compile(r"^(제\s*\d+\s*조)[^\n]*", re.MULTILINE)
     
-    # 항목 리스트 패턴
-    LIST_PATTERNS = [
-        re.compile(r"^\s*(\d+)\.\s+", re.MULTILINE),      # 1. 2. 3.
-        re.compile(r"^\s*([가-힣])\.\s+", re.MULTILINE),  # 가. 나. 다.
-        re.compile(r"^\s*([①-⑳])\s+", re.MULTILINE),    # ①, ②, ③
-        re.compile(r"^\s*([ⅰ-ⅹⅠ-Ⅹ])\.\s+", re.MULTILINE),  # ⅰ. ⅱ. ⅲ.
-    ]
-    
     def __init__(
         self,
         chunk_size: int = DEFAULT_CHUNK_SIZE,
@@ -101,8 +93,12 @@ class DocumentChunker:
             tables: 추출된 표 목록 (마크다운 형식)
         
         Returns:
-            List[Chunk]: 청크 목록
+            List[Chunk]: 청크 목록 (빈 텍스트 시 빈 리스트 반환)
         """
+        # 빈 텍스트 검증
+        if not text or not text.strip():
+            return []
+        
         chunks: List[Chunk] = []
         
         # 1. 조항별 분리 시도

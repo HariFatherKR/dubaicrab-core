@@ -167,9 +167,11 @@ def delete_collection(
     try:
         client.delete_collection(name)
         return True
-    except ValueError:
-        # 컬렉션이 존재하지 않음
-        return False
+    except (ValueError, Exception) as e:
+        # 컬렉션이 존재하지 않음 (ValueError 또는 NotFoundError)
+        if "does not exist" in str(e) or "NotFound" in type(e).__name__:
+            return False
+        raise  # 다른 예외는 재발생
 
 
 def list_collections(client: chromadb.PersistentClient) -> list[str]:

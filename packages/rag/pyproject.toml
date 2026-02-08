@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0"]
+dev = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0", "pytest-mock>=3.10.0"]
 
 [build-system]
 requires = ["hatchling"]
@@ -27,3 +27,4 @@ packages = ["src/rag"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = ["slow: 실행 시간이 오래 걸리는 테스트", "integration: 외부 리소스가 필요한 통합 테스트"]

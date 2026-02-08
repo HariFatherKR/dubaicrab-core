@@ -186,14 +186,26 @@ class BGEEmbedder:
             dict: 임베딩 결과
                 - 'dense': Dense 임베딩 (numpy array)
         
+        Raises:
+            ValueError: 빈 텍스트 또는 빈 리스트 입력 시
+        
         Note:
             sentence-transformers 기반이므로 sparse/colbert는 별도 구현 필요
         """
         if isinstance(texts, str):
             texts = [texts]
         
+        # 빈 입력 검증
+        if not texts:
+            raise ValueError("임베딩할 텍스트가 비어있습니다")
+        
+        # 빈 문자열 필터링 및 검증
+        valid_texts = [t for t in texts if t and t.strip()]
+        if not valid_texts:
+            raise ValueError("모든 텍스트가 비어있습니다")
+        
         embeddings = self.model.encode(
-            texts,
+            valid_texts,
             batch_size=self.batch_size,
             show_progress_bar=False,
             convert_to_numpy=True,
@@ -214,7 +226,13 @@ class BGEEmbedder:
         
         Returns:
             List[float]: Dense 임베딩 벡터
+        
+        Raises:
+            ValueError: 빈 쿼리 텍스트 입력 시
         """
+        if not text or not text.strip():
+            raise ValueError("쿼리 텍스트가 비어있습니다")
+        
         result = self.get_embeddings(text, return_dense=True)
         return result["dense"][0].tolist()
     
@@ -227,7 +245,13 @@ class BGEEmbedder:
         
         Returns:
             List[List[float]]: Dense 임베딩 벡터 리스트
+        
+        Raises:
+            ValueError: 빈 리스트 또는 모든 텍스트가 빈 경우
         """
+        if not texts:
+            raise ValueError("임베딩할 문서 리스트가 비어있습니다")
+        
         result = self.get_embeddings(texts, return_dense=True)
         return [emb.tolist() for emb in result["dense"]]
 
