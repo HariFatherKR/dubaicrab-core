@@ -2,6 +2,8 @@
 벡터 인덱싱 모듈
 
 문서 → 청크 → 임베딩 → Chroma 저장 파이프라인
+
+hwpparser 패키지를 사용하여 HWP 파일을 처리합니다.
 """
 
 import hashlib
@@ -10,7 +12,9 @@ import os
 from pathlib import Path
 from typing import Callable, List, Optional, Set
 
-from .chunker import Chunk, chunk_document, chunks_to_dict
+import hwpparser
+
+from .chunker import Chunk, chunk_document, chunk_hwp_file, chunks_to_dict
 from .embeddings import get_embedder
 from .parsers import hwp_to_text, ParseResult
 from .vector_store import get_client, get_or_create_collection, DEFAULT_COLLECTION_NAME

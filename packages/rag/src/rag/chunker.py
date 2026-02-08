@@ -5,11 +5,17 @@
 - 조항별 분리 (제1조, 제2조...)
 - 항목 리스트 분리 (1., 2., 가., 나.)
 - 표는 별도 청크로 분리
+
+hwpparser 패키지와 통합하여 HWP 파일 직접 청킹도 지원합니다.
 """
 
 import re
 from dataclasses import dataclass, field
-from typing import List, Optional
+from pathlib import Path
+from typing import List, Optional, Union
+
+import hwpparser
+from hwpparser import TextChunk as HWPTextChunk
 
 
 # 기본 설정
@@ -353,3 +359,103 @@ def chunks_to_dict(chunks: List[Chunk]) -> List[dict]:
         }
         for chunk in chunks
     ]
+
+
+# =============================================================================
+# hwpparser 통합 함수들
+# =============================================================================
+
+
+def chunk_hwp_file(
+    file_path: Union[str, Path],
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    overlap: int = DEFAULT_OVERLAP,
+    use_hwpparser_chunking: bool = False,
+) -> List[Chunk]:
+    """
+    HWP 파일을 직접 청킹 (hwpparser 사용)
+    
+    Args:
+        file_path: HWP/HWPX 파일 경로
+        chunk_size: 청크 크기
+        overlap: 오버랩 크기
+        use_hwpparser_chunking: True면 hwpparser.hwp_to_chunks 사용,
+                                False면 텍스트 추출 후 공문서 특화 청킹 사용
+    
+    Returns:
+        List[Chunk]: 청크 목록
+    """
+    file_path = Path(file_path)
+    
+    if use_hwpparser_chunking:
+        # hwpparser의 청킹 사용 (빠름, 일반적인 청킹)
+        hwp_chunks = hwpparser.hwp_to_chunks(
+            file_path,
+            chunk_size=chunk_size,
+            chunk_overlap=overlap,
+        )
+        return _convert_hwpparser_chunks(hwp_chunks, file_path.name)
+    else:
+        # 텍스트 추출 후 공문서 특화 청킹 (조항별 분리 등)
+        text = hwpparser.hwp_to_text(file_path)
+        return chunk_document(
+            text=text,
+            source_file=file_path.name,
+            chunk_size=chunk_size,
+            overlap=overlap,
+        )
+
+
+def _convert_hwpparser_chunks(
+    hwp_chunks: List[HWPTextChunk],
+    source_file: str,
+) -> List[Chunk]:
+    """
+    hwpparser의 TextChunk를 RAG의 Chunk로 변환
+    
+    Args:
+        hwp_chunks: hwpparser.TextChunk 목록
+        source_file: 원본 파일명
+    
+    Returns:
+        List[Chunk]: 변환된 Chunk 목록
+    """
+    chunks = []
+    for hwp_chunk in hwp_chunks:
+        chunk = Chunk(
+            content=hwp_chunk.text,
+            metadata=ChunkMetadata(
+                source_file=source_file,
+                chunk_index=hwp_chunk.index,
+                chunk_type="text",
+            ),
+        )
+        chunks.append(chunk)
+    return chunks
+
+
+def hwp_to_chunks_rag(
+    file_path: Union[str, Path],
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    overlap: int = DEFAULT_OVERLAP,
+) -> List[Chunk]:
+    """
+    HWP 파일을 RAG 파이프라인용 청크로 변환 (공문서 특화)
+    
+    hwpparser로 텍스트를 추출한 후,
+    공문서 특화 청킹 전략(조항별 분리)을 적용합니다.
+    
+    Args:
+        file_path: HWP/HWPX 파일 경로
+        chunk_size: 청크 크기
+        overlap: 오버랩 크기
+    
+    Returns:
+        List[Chunk]: 청크 목록
+    """
+    return chunk_hwp_file(
+        file_path,
+        chunk_size=chunk_size,
+        overlap=overlap,
+        use_hwpparser_chunking=False,  # 공문서 특화 청킹 사용
+    )
