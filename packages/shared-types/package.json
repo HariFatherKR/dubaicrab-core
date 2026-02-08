@@ -8,11 +8,17 @@
     "typescript"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snovium/dubaicrab-core.git",
+    "directory": "packages/shared-types"
+  },
   "files": [
     "dist",
     "src"
   ],
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -33,13 +39,21 @@
       "import": "./dist/file.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir dist --declaration false && for f in dist/*.js; do mv \"$f\" \"${f%.js}.cjs\"; done 2>/dev/null || true",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "version:check": "echo \"@dubaicrab/shared-types@$npm_package_version\""
   },
   "devDependencies": {
     "typescript": "^5.0.0"
   },
-  "peerDependencies": {}
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
