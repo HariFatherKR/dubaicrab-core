@@ -1,0 +1,36 @@
+{
+  "name": "@dubaicrab/kakao",
+  "version": "2026.2.10",
+  "description": "Dubai Crab Kakao channel plugin",
+  "type": "module",
+  "dependencies": {
+    "zod": "^3.22.0"
+  },
+  "peerDependencies": {
+    "dubaicrab": ">=2026.2.9"
+  },
+  "dubaicrab": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "kakao",
+      "label": "Kakao",
+      "selectionLabel": "Kakao (스킬 웹훅)",
+      "docsPath": "/channels/kakao",
+      "docsLabel": "kakao",
+      "blurb": "카카오톡 챗봇 웹훅을 Dubai Crab에 연결합니다.",
+      "aliases": [
+        "kakaotalk",
+        "카카오톡"
+      ],
+      "order": 85,
+      "quickstartAllowFrom": true
+    },
+    "install": {
+      "npmSpec": "@dubaicrab/kakao",
+      "localPath": "extensions/kakao",
+      "defaultChoice": "local"
+    }
+  }
+}
